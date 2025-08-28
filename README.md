@@ -34,6 +34,34 @@ Only BCK has a wire to a gpio since it didnt fit, on both PCM's you want to shor
 
 As of rn, the Mic Preamps havent arrived, I assume they work but we will see, 
 
+#### pinouts:
+
+| SD CARD   | ESP32-S3 Pin |
+| -------- | ------------ |
+| **CS**   | GPIO 33      |
+| **MOSI** | GPIO 21      |
+| **MISO** | GPIO 5       |
+| **SCK**  | GPIO 17      |
+
+| OLED DISPLAY  | ESP32-S3 Pin |
+| ------- | ------------ |
+| **SDA** | GPIO 11      |
+| **SCL** | GPIO 10      |
+
+
+| PCM 1808  | Pin on PCM     | ESP32-S3 Pin |
+| --------- | ---------- | ------------ |
+| **PCM-1** | SCK  | GPIO 35      |
+|     **PCM-1**       | BCK        | GPIO 38      |
+|     **PCM-1**       | LRC   | GPIO 18      |
+|     **PCM-1**       | OUT | GPIO 16      |
+| **PCM-2** | SCK | GPIO 13      |
+|      **PCM-2**     | BCK        | GPIO 2       |
+|     **PCM-2**      | LRC    | GPIO 12      |
+|     **PCM-2**      | OUT | GPIO 4       |
+
+
+
 It records *24-bit PCM @ 48 kHz* With a possibility to bump that up to 96 kHz, but dont think I will.
 
 

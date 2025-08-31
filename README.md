@@ -24,6 +24,7 @@ okay okay enough, components,
 *Note: Some of thease are referral links. If you purchase through it, I earn a commission at no extra cost to you.*
 
 <img width="756" height="1056" alt="image" src="https://github.com/user-attachments/assets/4c328860-04c7-42c4-8dbf-af1fde188d27" />
+<img width="1498" height="792" alt="image" src="https://github.com/user-attachments/assets/a51f8005-05e2-4829-aaa7-02201cd38d1c" />
 
 <img width="1819" height="991" alt="image" src="https://github.com/user-attachments/assets/71df9c74-bb81-427d-ac3e-1ceb55fa1cc0" />
 <img width="1707" height="995" alt="image" src="https://github.com/user-attachments/assets/417cd24c-3441-4a24-96cc-81c0b38045fd" />

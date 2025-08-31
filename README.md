@@ -13,7 +13,8 @@ okay okay enough, components,
 
 - **ESP32-S3 Mini**: [AliExpress Link](https://aliexpress.com/item/1005005449219195.html)
 - **PCM1808 (need 2pcs)**: [AliExpress Link](https://s.click.aliexpress.com/e/_oCrSlXR)
-- **Aux (need 2pcs)**: [AliExpress Link](https://s.click.aliexpress.com/e/_o2d4zcZ)
+- **Aux-M (need 2pcs)**: [AliExpress Link](https://s.click.aliexpress.com/e/_o2d4zcZ)
+- **Aux-F (need 4pcs)**: [AliExpress Link](https://aliexpress.com/item/1005005895047424.html)
 - **Microphone Capsule (need 4pcs)**: [AliExpress Link](https://s.click.aliexpress.com/e/_oltEmLb)
 - **SD Card**: [AliExpress Link](https://s.click.aliexpress.com/e/_oFsbpBB)
 - **SD Card Holder**: [AliExpress Link](https://s.click.aliexpress.com/e/_olg0Y8z)

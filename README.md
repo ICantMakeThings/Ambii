@@ -1,9 +1,11 @@
+## This IS Very WIP!!!
 ## What is Ambii?
 Its short for [Ambisonics](https://en.wikipedia.org/wiki/Ambisonics) Which is a [Binaural Microphone](https://en.wikipedia.org/wiki/Binaural_recording) on sterioids- Kind of...
 
 This repo includes the code for the recorder, since I like to make stuff as cheap as I can, and quad input recording devices are mad expensive, and ohh you want to include portibility in the search? haa.. ha.
 
-this project includes everything, including the 3d printable files to print the actual mic too. once im happy enough with the files they will be on [thingiverse](https://www.thingiverse.com/cantmakethings)
+this project includes everything, including the 3d printable files to print the actual mic too. avalable [here](https://www.thingiverse.com/thing:7132631)
+and the firmware [here](https://github.com/ICantMakeThings/Ambii)
 
 okay okay enough, components,
 
@@ -20,6 +22,8 @@ okay okay enough, components,
 - Some thin wires to connect the parts together
 
 *Note: Some of thease are referral links. If you purchase through it, I earn a commission at no extra cost to you.*
+
+<img width="756" height="1056" alt="image" src="https://github.com/user-attachments/assets/4c328860-04c7-42c4-8dbf-af1fde188d27" />
 
 <img width="1819" height="991" alt="image" src="https://github.com/user-attachments/assets/71df9c74-bb81-427d-ac3e-1ceb55fa1cc0" />
 <img width="1707" height="995" alt="image" src="https://github.com/user-attachments/assets/417cd24c-3441-4a24-96cc-81c0b38045fd" />

@@ -72,5 +72,7 @@ It records *24-bit PCM @ 48 kHz* With a possibility to bump that up to 96 kHz,
 
 also for it to work, in my images you see the capsules are poking out of the filet, you want the mic capsule to be flush with the 3D model
 
+There is a 14.6mm hole Version for [this capsule](https://micbooster.com/product/primo-em204n-cardioid-electret-microphone)
+
 ###### Only interested in 2 channels? look no more since ive already made one too [here](https://github.com/ICantMakeThings/StereoRecorder)
 

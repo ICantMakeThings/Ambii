@@ -76,3 +76,6 @@ There is a 14.6mm hole Version for [this capsule](https://micbooster.com/product
 
 ###### Only interested in 2 channels? look no more since ive already made one too [here](https://github.com/ICantMakeThings/StereoRecorder)
 
+## Oshwa Certified!
+<img width="100" height="160" alt="image" src="https://github.com/user-attachments/assets/cf43ca77-ceae-4da3-81a4-97c64b782f47" />
+

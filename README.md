@@ -30,6 +30,11 @@ okay okay enough, components,
 <img width="1819" height="991" alt="image" src="https://github.com/user-attachments/assets/71df9c74-bb81-427d-ac3e-1ceb55fa1cc0" />
 <img width="1707" height="995" alt="image" src="https://github.com/user-attachments/assets/417cd24c-3441-4a24-96cc-81c0b38045fd" />
 
+
+<img width="1190" height="845" alt="SCH_Ambii Schematic_1" src="https://github.com/user-attachments/assets/529a0414-6883-4752-a784-85976aa106a2" />
+
+Schem on Oshwlab [here](https://oshwlab.com/nottoenail/ambii)
+
 The Wiring is done in such a way where most of the pins are soldered with pins with a little gap:
 
 <img width="1094" height="827" alt="image" src="https://github.com/user-attachments/assets/e456e050-0f12-46bd-a41e-4a657a8f8936" />

@@ -24,7 +24,7 @@ okay okay enough, components,
 - **SD Card**: [AliExpress Link](https://s.click.aliexpress.com/e/_oFsbpBB)
 - **SD Card Holder**: [AliExpress Link](https://s.click.aliexpress.com/e/_olg0Y8z)
 - **OLED Display**: [AliExpress Link](https://s.click.aliexpress.com/e/_olLPabx)
-- **Mic Preamp (need 2pcs)**: [AliExpress Link](https://s.click.aliexpress.com/e/_o2CUG6t)
+- **Mic Preamp (maybe) (need 2pcs)**: [AliExpress Link](https://s.click.aliexpress.com/e/_o2CUG6t)
 - Some thin wires to connect the parts together
 
 *Note: Some of thease are referral links. If you purchase through it, I earn a commission at no extra cost to you.*

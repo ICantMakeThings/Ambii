@@ -1,4 +1,9 @@
 ## This IS Very WIP!!!
+
+
+New! Video [here](https://www.youtube.com/watch?v=-zq66LNntuQ)
+
+Its short for [Ambison
 ## What is Ambii?
 Its short for [Ambisonics](https://en.wikipedia.org/wiki/Ambisonics) Which is a [Binaural Microphone](https://en.wikipedia.org/wiki/Binaural_recording) on sterioids- Kind of...
 

@@ -58,10 +58,10 @@ As of rn, the Mic Preamps havent arrived, I assume they work but we will see,
 | **MISO** | GPIO 5       |
 | **SCK**  | GPIO 17      |
 
-| OLED DISPLAY  | ESP32-S3 Pin |
-| ------- | ------------ |
-| **SDA** | GPIO 11      |
-| **SCL** | GPIO 10      |
+| OLED DISPLAY  | ESP32-S3 Pin |  SI5351 | 
+| ------- | ------------ | -------
+| **SDA** | GPIO 11      | **SDA** |
+| **SCL** | GPIO 10      | **SDA** |
 
 
 | PCM 1808  | Pin on PCM     | ESP32-S3 Pin |

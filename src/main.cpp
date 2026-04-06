@@ -1,18 +1,19 @@
 #include <Arduino.h>
+#include <Wire.h>
 #include <FS.h>
 #include <SD.h>
+#include <SPI.h>
 #include <driver/i2s.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <si5351.h>
 
-#define BUTTON_PIN 0
+#define BUTTON_PIN 43
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 32
 #define OLED_RESET -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-unsigned long startMillis = 0;
 
 #define SD_CS 33
 #define SD_MOSI 21
@@ -22,23 +23,25 @@ SPIClass sdSPI(FSPI);
 
 #define SAMPLE_RATE 48000
 #define BITS_PER_SAMPLE I2S_BITS_PER_SAMPLE_32BIT
-
 #define BUFFER_SIZE 16384
-uint8_t *buffer1;
-uint8_t *buffer2;
-uint8_t *packed;
 #define MAX_FILE_SIZE_MB 3900
 #define MAX_BYTES (MAX_FILE_SIZE_MB * 1024UL * 1024UL)
 
 #define I2S_PORT_1 I2S_NUM_0
 #define I2S_PORT_2 I2S_NUM_1
 
+uint8_t *buffer1;
+uint8_t *buffer2;
+uint8_t *packed;
+
 File file;
 bool recording = false;
 uint32_t bytesWritten = 0;
+unsigned long startMillis = 0;
 
-struct WAVHeader
-{
+Si5351 clockgen;
+
+struct WAVHeader {
   char riff[4];
   uint32_t size;
   char wave[4];
@@ -54,89 +57,78 @@ struct WAVHeader
   uint32_t data_size;
 };
 
-void writeWavHeader(File &f, uint32_t pcm_bytes)
-{
+void writeWavHeader(File &f, uint32_t pcm_bytes) {
   WAVHeader h;
   memcpy(h.riff, "RIFF", 4);
   h.size = pcm_bytes + 36;
   memcpy(h.wave, "WAVE", 4);
   memcpy(h.fmt, "fmt ", 4);
   h.fmt_size = 16;
-  h.audio_fmt = 1;
+  h.audio_fmt = 1; // PCM
   h.num_channels = 4;
   h.sample_rate = SAMPLE_RATE;
-  h.bits_per_sample = 24;
-  h.byte_rate = SAMPLE_RATE * h.num_channels * (h.bits_per_sample / 8);
-  h.block_align = h.num_channels * (h.bits_per_sample / 8);
+  h.bits_per_sample = 32;
+  h.byte_rate = SAMPLE_RATE * h.num_channels * 4;
+  h.block_align = h.num_channels * 4;
   memcpy(h.data, "data", 4);
   h.data_size = pcm_bytes;
   f.seek(0);
   f.write((uint8_t *)&h, sizeof(h));
 }
 
-void i2sInit()
-{
+void i2sInit() {
   i2s_config_t config = {
-      .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
-      .sample_rate = SAMPLE_RATE,
-      .bits_per_sample = BITS_PER_SAMPLE,
-      .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
-      .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-      .intr_alloc_flags = 0,
-      .dma_buf_count = 8,
-      .dma_buf_len = 512,
-      .use_apll = true,
-      .tx_desc_auto_clear = false,
-      .fixed_mclk = SAMPLE_RATE * 256};
+    .mode = (i2s_mode_t)(I2S_MODE_SLAVE | I2S_MODE_RX),
+    .sample_rate = SAMPLE_RATE,          // ignored in slave mode
+    .bits_per_sample = BITS_PER_SAMPLE,
+    .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .intr_alloc_flags = 0,
+    .dma_buf_count = 8,
+    .dma_buf_len = 512,
+    .use_apll = false,
+    .tx_desc_auto_clear = false,
+    .fixed_mclk = 0
+  };
 
   i2s_pin_config_t pin_config_1 = {
-      .mck_io_num = GPIO_NUM_35,
-      .bck_io_num = GPIO_NUM_38,
-      .ws_io_num = GPIO_NUM_18,
-      .data_out_num = I2S_PIN_NO_CHANGE,
-      .data_in_num = GPIO_NUM_16};
+    .mck_io_num = GPIO_NUM_35,   // MCLK input from Si5351 CLK2
+    .bck_io_num = GPIO_NUM_38,   // BCLK input from Si5351 CLK0
+    .ws_io_num  = GPIO_NUM_18,   // LRCLK input from Si5351 CLK1
+    .data_out_num = I2S_PIN_NO_CHANGE,
+    .data_in_num  = GPIO_NUM_16
+  };
 
   i2s_pin_config_t pin_config_2 = {
-      .mck_io_num = GPIO_NUM_13,
-      .bck_io_num = GPIO_NUM_2,
-      .ws_io_num = GPIO_NUM_12,
-      .data_out_num = I2S_PIN_NO_CHANGE,
-      .data_in_num = GPIO_NUM_4};
+    .mck_io_num = GPIO_NUM_13,
+    .bck_io_num = GPIO_NUM_2,
+    .ws_io_num  = GPIO_NUM_12,
+    .data_out_num = I2S_PIN_NO_CHANGE,
+    .data_in_num  = GPIO_NUM_4
+  };
 
   i2s_driver_install(I2S_PORT_1, &config, 0, NULL);
   i2s_set_pin(I2S_PORT_1, &pin_config_1);
-  i2s_set_clk(I2S_PORT_1, SAMPLE_RATE, BITS_PER_SAMPLE, I2S_CHANNEL_STEREO);
   i2s_zero_dma_buffer(I2S_PORT_1);
 
   i2s_driver_install(I2S_PORT_2, &config, 0, NULL);
   i2s_set_pin(I2S_PORT_2, &pin_config_2);
-  i2s_set_clk(I2S_PORT_2, SAMPLE_RATE, BITS_PER_SAMPLE, I2S_CHANNEL_STEREO);
   i2s_zero_dma_buffer(I2S_PORT_2);
 }
 
-int getNextFileNumber()
-{
+int getNextFileNumber() {
   int num = 1;
-  while (SD.exists("/record" + String(num) + ".wav"))
-  {
-    num++;
-  }
+  while (SD.exists("/record" + String(num) + ".wav")) num++;
   return num;
 }
 
-void setup()
-{
+void setup() {
   Serial.begin(115200);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   Wire.begin(11, 10);
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-  {
-    Serial.println("SSD1306 init failed!");
-    while (1)
-      ;
-  }
-
+  // OLED init
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) while (1);
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
@@ -145,48 +137,46 @@ void setup()
   display.println("v1.0");
   display.display();
   delay(2000);
-  display.clearDisplay();
-  display.display();
 
-  if (!psramFound())
-  {
-    Serial.println("PSRAM ran away");
-    while (1)
-      ;
-  }
+  // PSRAM
+  if (!psramFound()) while(1);
+  buffer1 = (uint8_t*) ps_malloc(BUFFER_SIZE);
+  buffer2 = (uint8_t*) ps_malloc(BUFFER_SIZE);
+  packed  = (uint8_t*) ps_malloc(BUFFER_SIZE * 2);
+  if (!buffer1 || !buffer2 || !packed) while(1);
 
-  buffer1 = (uint8_t *)ps_malloc(BUFFER_SIZE);
-  buffer2 = (uint8_t *)ps_malloc(BUFFER_SIZE);
-  packed = (uint8_t *)ps_malloc(BUFFER_SIZE * 3 / 2);
-
-  if (!buffer1 || !buffer2 || !packed)
-  {
-    Serial.println("PSRAM died!");
-    while (1)
-      ;
-  }
-
-  Serial.println("PSRAM works, yay!");
-
+  // SD card
   sdSPI.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
-  if (!SD.begin(SD_CS, sdSPI))
-  {
-    Serial.println("No SD Card");
+  if (!SD.begin(SD_CS, sdSPI)) while(1);
 
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.println("No SD Card");
-    display.println("Or not formatted.");
-    display.display();
-
-    while (1)
-    {
-      delay(250);
-    }
+  // Initialize Si5351 clock generator
+  if (!clockgen.init(SI5351_CRYSTAL_LOAD_8PF, 25000000UL, 0)) {
+    Serial.println("Si5351 init failed!");
+    while(1);
   }
+  Serial.println("Si5351 initialized");
 
-  Serial.println("SD card yay good");
+  // Set clock frequencies (in centihertz)
+  // CLK0 = BCLK = 3.072 MHz
+  clockgen.set_freq(307200000ULL, SI5351_CLK0);
+  Serial.println("CLK0 set");
+
+  // CLK1 = LRCLK = 48 kHz
+  clockgen.set_freq(4800000ULL, SI5351_CLK1);
+  Serial.println("CLK1 set");
+
+  // CLK2 = MCLK = 12.288 MHz
+  clockgen.set_freq(1228800000ULL, SI5351_CLK2);
+  Serial.println("CLK2 set");
+
+  // Enable outputs
+  clockgen.output_enable(SI5351_CLK0, 1);
+  clockgen.output_enable(SI5351_CLK1, 1);
+  clockgen.output_enable(SI5351_CLK2, 1);
+  Serial.println("Clock outputs enabled");
+
   i2sInit();
+  Serial.println("I2S initialized");
 }
 
 void loop()
@@ -273,42 +263,25 @@ void loop()
   if (recording)
   {
     size_t bytesRead1 = 0, bytesRead2 = 0;
-    i2s_read(I2S_PORT_1, buffer1, BUFFER_SIZE, &bytesRead1, portMAX_DELAY);
-    i2s_read(I2S_PORT_2, buffer2, BUFFER_SIZE, &bytesRead2, portMAX_DELAY);
+    i2s_read(I2S_PORT_1, buffer1, BUFFER_SIZE, &bytesRead1, pdMS_TO_TICKS(100));
+    i2s_read(I2S_PORT_2, buffer2, BUFFER_SIZE, &bytesRead2, pdMS_TO_TICKS(100));
 
     if (bytesRead1 > 0 && bytesRead2 > 0)
     {
       int32_t *samples1 = (int32_t *)buffer1;
       int32_t *samples2 = (int32_t *)buffer2;
       size_t frames = min(bytesRead1, bytesRead2) / 8;
+      int32_t *packed32 = (int32_t *)packed;
 
       for (size_t i = 0; i < frames; i++)
       {
-        int32_t L1 = samples1[i * 2 + 0];
-        int32_t R1 = samples1[i * 2 + 1];
-        int32_t L2 = samples2[i * 2 + 0];
-        int32_t R2 = samples2[i * 2 + 1];
-
-        size_t base = i * 12;
-
-        packed[base + 0] = (L1 >> 8) & 0xFF;
-        packed[base + 1] = (L1 >> 16) & 0xFF;
-        packed[base + 2] = (L1 >> 24) & 0xFF;
-
-        packed[base + 3] = (R1 >> 8) & 0xFF;
-        packed[base + 4] = (R1 >> 16) & 0xFF;
-        packed[base + 5] = (R1 >> 24) & 0xFF;
-
-        packed[base + 6] = (L2 >> 8) & 0xFF;
-        packed[base + 7] = (L2 >> 16) & 0xFF;
-        packed[base + 8] = (L2 >> 24) & 0xFF;
-
-        packed[base + 9] = (R2 >> 8) & 0xFF;
-        packed[base + 10] = (R2 >> 16) & 0xFF;
-        packed[base + 11] = (R2 >> 24) & 0xFF;
+        packed32[i * 4 + 0] = samples1[i * 2 + 0]; // L1
+        packed32[i * 4 + 1] = samples1[i * 2 + 1]; // R1
+        packed32[i * 4 + 2] = samples2[i * 2 + 0]; // L2
+        packed32[i * 4 + 3] = samples2[i * 2 + 1]; // R2
       }
 
-      size_t packedBytes = frames * 12;
+      size_t packedBytes = frames * 16;
 
       if (bytesWritten + packedBytes <= MAX_BYTES)
       {

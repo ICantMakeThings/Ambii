@@ -1,5 +1,5 @@
-## This IS Very WIP!!!
-
+## Notice
+#### Soon version 2 of this repo will be released, will be linked once ready.
 
 New! Video [here](https://www.youtube.com/watch?v=-zq66LNntuQ)
 

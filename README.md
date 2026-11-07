@@ -1,5 +1,4 @@
-## Notice
-#### Soon version 2 of this repo will be released, will be linked once ready.
+ ## Notice This project is no longer worked on actively, see: [AmbM8](https://github.com/ICantMakeThings/AmbM8)
 
 New! Video [here](https://www.youtube.com/watch?v=-zq66LNntuQ)
 
